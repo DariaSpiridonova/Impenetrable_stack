@@ -18,3 +18,4 @@ stack.exe: $(OBJECTS)
 clean:
 	rm *.o
 	rm stack.exe
+	

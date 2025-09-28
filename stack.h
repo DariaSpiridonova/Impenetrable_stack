@@ -32,5 +32,3 @@ USED_TYPE StackPop(struct stack_t *stk, StackErr_t *err);
 StackErr_t StackDestroy(struct stack_t *stk);
 StackErr_t StackVerify(struct stack_t *stk);
 void StackDump(struct stack_t *stk, const char *file, int line);
-
-
