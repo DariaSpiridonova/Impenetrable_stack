@@ -2,6 +2,10 @@
 #include <stddef.h>
 
 #define POIZON 765418
+#define STACK_DUMP(stk)\
+        StackDump(stk,__FILE__, __LINE__)
+#define INCREASE_IN 2
+#define CANARY 43685
 
 #define ASSERTS(stk) \
     assert(stk != NULL);\
@@ -10,7 +14,7 @@
     assert(stk->data != NULL);
 
 
-typedef int USED_TYPE;
+typedef int used_type;
 
 enum StackErr_t {
     NO_ERROR = 0,
@@ -21,14 +25,14 @@ enum StackErr_t {
 
 struct stack_t
 {
-    USED_TYPE *data;
+    used_type *data;
     ssize_t size;
     ssize_t capacity; //переменная для хранения суммы чисел в стеке
 };
 
 StackErr_t StackInit(struct stack_t *stk, ssize_t capacity);
-StackErr_t StackPush(struct stack_t *stk, USED_TYPE value);
-USED_TYPE StackPop(struct stack_t *stk, StackErr_t *err);
+StackErr_t StackPush(struct stack_t *stk, used_type value);
+used_type StackPop(struct stack_t *stk, StackErr_t *err);
 StackErr_t StackDestroy(struct stack_t *stk);
-StackErr_t StackVerify(struct stack_t *stk);
-void StackDump(struct stack_t *stk, const char *file, int line);
+StackErr_t StackVerify(const struct stack_t *stk);
+void StackDump(const struct stack_t *stk, const char *file, int line);

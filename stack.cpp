@@ -8,7 +8,19 @@ StackErr_t StackInit(struct stack_t *stk, ssize_t capacity)
     assert(stk != NULL);
     assert(capacity > 0);
 
-    stk->data = (USED_TYPE *)calloc((size_t)capacity + 2, sizeof(USED_TYPE));
+    stk->data = (used_type *)calloc((size_t)capacity + 2, sizeof(used_type));
+    stk->size = 0;
+
+    StackErr_t err = NO_ERROR;
+    if ((err = StackVerify(stk)))
+    {
+        STACK_DUMP(stk);
+        return err;
+    }
+
+    stk->data[0] = CANARY;
+    stk->data[(size_t)capacity + 1] = CANARY;
+    stk->data++;
     // сделать тут канарейку и потом её двигать при необходимости
 
     for (ssize_t i = 0; i < capacity; i++)
@@ -16,24 +28,24 @@ StackErr_t StackInit(struct stack_t *stk, ssize_t capacity)
         stk->data[i] = POIZON;
     }
 
-    StackErr_t err = NO_ERROR;
+    err = NO_ERROR;
     if ((err = StackVerify(stk)))
     {
-        StackDump(stk,__FILE__, __LINE__); // можешь впихнуть в stackverify
+        STACK_DUMP(stk); // можешь впихнуть в stackverify
         return err;
     }
 
     return err;
 }
 
-StackErr_t StackPush(struct stack_t *stk, USED_TYPE value)
+StackErr_t StackPush(struct stack_t *stk, used_type value)
 {
     ASSERTS(stk);
 
     StackErr_t err = NO_ERROR;
-    if (err)
+    if ((err = StackVerify(stk)))
     {
-        StackDump(stk,__FILE__, __LINE__);
+        STACK_DUMP(stk);
         return err;
     }
 
@@ -42,8 +54,18 @@ StackErr_t StackPush(struct stack_t *stk, USED_TYPE value)
     if (stk->size >= stk->capacity)
     {
         printf("MORE\n");
-        stk->data = (USED_TYPE *)realloc(stk->data, 2*(size_t)(stk->capacity)*sizeof(USED_TYPE));
-        stk->capacity *= 2;
+        stk->data = (used_type *)realloc(--stk->data, 2*(size_t)(stk->capacity + 1)*sizeof(used_type));
+        stk->data++;
+        stk->data[(size_t)stk->capacity] = POIZON;
+        
+        err = NO_ERROR;
+        if ((err = StackVerify(stk)))
+        {
+            STACK_DUMP(stk);
+            return err;
+        }
+        stk->capacity *= INCREASE_IN;
+        stk->data[(size_t)stk->capacity] = CANARY;
     }
     
     for (ssize_t j = stk->size; j < stk->capacity; j++)
@@ -54,7 +76,7 @@ StackErr_t StackPush(struct stack_t *stk, USED_TYPE value)
     err = NO_ERROR;
     if (err)
     {
-        StackDump(stk,__FILE__, __LINE__);
+        STACK_DUMP(stk);
         return err;
     }
 
@@ -63,14 +85,13 @@ StackErr_t StackPush(struct stack_t *stk, USED_TYPE value)
     return err;
 }
 
-USED_TYPE StackPop(struct stack_t *stk, StackErr_t *err)
+used_type StackPop(struct stack_t *stk, StackErr_t *err)
 {
     ASSERTS(stk);
 
     *err = StackVerify(stk);
     if (*err) return POIZON;
-
-    USED_TYPE value_from_stack = stk->data[--stk->size];
+    used_type value_from_stack = stk->data[--stk->size];
 
     if (stk->size < 0) stk->size = 0;
 
@@ -87,26 +108,28 @@ StackErr_t StackDestroy(struct stack_t *stk)
     StackErr_t err = NO_ERROR;
     if (err)
     {
-        StackDump(stk,__FILE__, __LINE__);
+        STACK_DUMP(stk);
         return err;
     }
 
-    free(stk->data);
+    free(--stk->data);
+    stk->data = NULL;
+    stk = NULL;
 
     return err;
 }
 
-StackErr_t StackVerify(struct stack_t *stk)
+StackErr_t StackVerify(const struct stack_t *stk)
 {
     ASSERTS(stk);
 
-    if (stk->size < 0) return ERROR_IN_SIZE;
+    if (stk->size < 0 || stk->size > stk->capacity) return ERROR_IN_SIZE;
     else if (stk->capacity <= 0) return ERROR_IN_CAPACITY;
     else if (stk->data == NULL) return ERROR_IN_DATA;
     return NO_ERROR;
 }
 
-void StackDump(struct stack_t *stk, const char *file, int line)
+void StackDump(const struct stack_t *stk, const char *file, int line)
 {
     printf("StackDump called from %s :%d\n", file, line);
     printf("Stack[%p]\n", &stk);
