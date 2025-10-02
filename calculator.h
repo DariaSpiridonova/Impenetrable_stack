@@ -29,10 +29,7 @@ struct calculator_parameters
 CalculateErrors read_and_do_command(struct stack_t *stk, FILE *commands, struct calculator_parameters parampampa);
 bool is_command(const char *received_command, const char *existing_command);
 CalculateErrors do_push(struct stack_t *stk, FILE *commands);
-CalculateErrors do_add(struct stack_t *stk);
-CalculateErrors do_sub(struct stack_t *stk);
-CalculateErrors do_mul(struct stack_t *stk);
-CalculateErrors do_div(struct stack_t *stk);
+CalculateErrors arithmetic_operations(struct stack_t *stk, const char *existing_command);
 CalculateErrors do_sqrt(struct stack_t *stk);
 CalculateErrors do_out(struct stack_t *stk);
 CalculateErrors do_hlt(struct stack_t *stk);

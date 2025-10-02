@@ -14,10 +14,10 @@ CalculateErrors read_and_do_command(struct stack_t *stk, FILE *commands, struct 
 
     CalculateErrors execution_result = DATA_OK;
     if      (is_command(parampampa.command, "PUSH")) execution_result = do_push(stk, commands);
-    else if (is_command(parampampa.command, "ADD" )) execution_result = do_add (stk);
-    else if (is_command(parampampa.command, "SUB" )) execution_result = do_sub (stk);
-    else if (is_command(parampampa.command, "MUL" )) execution_result = do_mul (stk);
-    else if (is_command(parampampa.command, "DIV" )) execution_result = do_div (stk);
+    else if (is_command(parampampa.command, "ADD" )) execution_result = arithmetic_operations(stk, "ADD");
+    else if (is_command(parampampa.command, "SUB" )) execution_result = arithmetic_operations(stk, "SUB");
+    else if (is_command(parampampa.command, "MUL" )) execution_result = arithmetic_operations (stk, "MUL");
+    else if (is_command(parampampa.command, "DIV" )) execution_result = arithmetic_operations (stk, "DIV");
     else if (is_command(parampampa.command, "SQRT")) execution_result = do_sqrt(stk);
     else if (is_command(parampampa.command, "OUT" )) execution_result = do_out (stk);
     else if (is_command(parampampa.command, "HLT" )) execution_result = do_hlt (stk);
@@ -49,7 +49,7 @@ CalculateErrors do_push(struct stack_t *stk, FILE *commands)
     return DATA_OK;
 }
 
-CalculateErrors do_add(struct stack_t *stk)
+CalculateErrors arithmetic_operations(struct stack_t *stk, const char *existing_command)
 {
     ASSERTS(stk);
     
@@ -66,83 +66,22 @@ CalculateErrors do_add(struct stack_t *stk)
         }
     }
 
-    printf("%d\n", summands[0] + summands[1]);
-
-    if (StackPush(stk, (summands[0] + summands[1]))) return ERROR_IN_STACK;;
-
-    return DATA_OK;
-}
-
-CalculateErrors do_sub(struct stack_t *stk)
-{
-    ASSERTS(stk);
-    
-    used_type args_for_difference[] = {0, 0};
-
-    for (int i = 0; i < 2; i++)
+    used_type result = 0;
+    if (!strcmp("ADD", existing_command)) result = summands[0] + summands[1];
+    if (!strcmp("SUB", existing_command)) result = summands[0] - summands[1];
+    if (!strcmp("MUL", existing_command)) result = summands[0]*summands[1]/MULTY;
+    if (!strcmp("DIV", existing_command)) 
     {
-        StackErr_t err = NO_ERROR;
-        args_for_difference[i] = StackPop(stk, &err);
-        if ((err = StackVerify(stk))) 
+        if (summands[1] == 0)
         {
-            StackDump(stk,__FILE__, __LINE__); 
-            return ERROR_IN_STACK;
+            return DIVISION_BY_ZERO;
         }
+        result = summands[0]*MULTY/summands[1];
     }
 
-    if (StackPush(stk, args_for_difference[0] - args_for_difference[1])) return ERROR_IN_STACK;;
+    printf("result before push = %d\n", result);
 
-    return DATA_OK;
-}
-
-CalculateErrors do_mul(struct stack_t *stk)
-{
-    ASSERTS(stk);
-
-    used_type multipliers[] = {0, 0};
-
-    for (int i = 0; i < 2; i++)
-    {
-        StackErr_t err = NO_ERROR;
-        multipliers[i] = StackPop(stk, &err);
-        if ((err = StackVerify(stk))) 
-        {
-            StackDump(stk,__FILE__, __LINE__); 
-            return ERROR_IN_STACK;
-        }
-    }
-
-    if (StackPush(stk, multipliers[0]*multipliers[1]/MULTY)) return ERROR_IN_STACK;;
-
-    return DATA_OK;
-}
-
-CalculateErrors do_div(struct stack_t *stk)
-{
-    ASSERTS(stk);
-
-    used_type divisible_divisor[] = {0, 0};
-
-    for (int i = 0; i < 2; i++)
-    {
-        StackErr_t err = NO_ERROR;
-        divisible_divisor[i] = StackPop(stk, &err);
-        if ((err = StackVerify(stk))) 
-        {
-            StackDump(stk,__FILE__, __LINE__); 
-            return ERROR_IN_STACK;
-        }
-    }
-
-    printf("%d   ", divisible_divisor[0]);
-    printf("%d   \n", divisible_divisor[1]);
-
-    if (divisible_divisor[1] == 0)
-    {
-        return DIVISION_BY_ZERO;
-    }
-
-    if (StackPush(stk, divisible_divisor[0]*MULTY/divisible_divisor[1])) return ERROR_IN_STACK;;
+    if (StackPush(stk, result)) return ERROR_IN_STACK;;
 
     return DATA_OK;
 }
@@ -182,7 +121,7 @@ CalculateErrors do_out(struct stack_t *stk)
         return ERROR_IN_STACK;
     }
 
-    printf("The value obtained from the stack: %d\n", deliver_value);
+    printf("The value obtained from the stack: %d\n", deliver_value/MULTY);
 
     return DATA_OK;
 }

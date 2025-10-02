@@ -56,6 +56,7 @@ StackErr_t StackPush(struct stack_t *stk, used_type value)
     } 
 
     stk->data[stk->size++] = value;
+    printf("%d - %d\n", value, stk->size - 1);
     
     stk->sum_of_elements += value;
 
@@ -105,7 +106,7 @@ used_type StackPop(struct stack_t *stk, StackErr_t *err)
         return POIZON;
     }
 
-    used_type value_from_stack = stk->data[stk->size]/1000;
+    used_type value_from_stack = stk->data[stk->size];
     stk->data[stk->size] = POIZON;
 
     if (stk->size < 0) stk->size = 0;
