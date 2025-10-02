@@ -10,6 +10,7 @@ StackErr_t StackInit(struct stack_t *stk, ssize_t capacity)
 
     stk->data = (used_type *)calloc((size_t)capacity + 2, sizeof(used_type));
     stk->size = 0;
+    stk->capacity = capacity;
 
     StackErr_t err = NO_ERROR;
     if ((err = StackVerify(stk)))
@@ -21,7 +22,6 @@ StackErr_t StackInit(struct stack_t *stk, ssize_t capacity)
     stk->data[0] = CANARY;
     stk->data[(size_t)capacity + 1] = CANARY;
     stk->data++;
-    // сделать тут канарейку и потом её двигать при необходимости
 
     for (ssize_t i = 0; i < capacity; i++)
     {
@@ -31,7 +31,7 @@ StackErr_t StackInit(struct stack_t *stk, ssize_t capacity)
     err = NO_ERROR;
     if ((err = StackVerify(stk)))
     {
-        STACK_DUMP(stk); // можешь впихнуть в stackverify
+        STACK_DUMP(stk);
         return err;
     }
 
@@ -49,7 +49,15 @@ StackErr_t StackPush(struct stack_t *stk, used_type value)
         return err;
     }
 
+    if (stk->size == stk->capacity)
+    {
+        STACK_DUMP(stk);
+        return err;
+    } 
+
     stk->data[stk->size++] = value;
+    
+    stk->sum_of_elements += value;
 
     if (stk->size >= stk->capacity)
     {
@@ -74,7 +82,7 @@ StackErr_t StackPush(struct stack_t *stk, used_type value)
     }
 
     err = NO_ERROR;
-    if (err)
+    if ((err = StackVerify(stk)))
     {
         STACK_DUMP(stk);
         return err;
@@ -91,12 +99,22 @@ used_type StackPop(struct stack_t *stk, StackErr_t *err)
 
     *err = StackVerify(stk);
     if (*err) return POIZON;
-    used_type value_from_stack = stk->data[--stk->size];
+    if (stk->data[--stk->size] == CANARY)
+    {
+        STACK_DUMP(stk);
+        return POIZON;
+    }
+
+    used_type value_from_stack = stk->data[stk->size]/1000;
+    stk->data[stk->size] = POIZON;
 
     if (stk->size < 0) stk->size = 0;
 
     *err = StackVerify(stk);
     if (*err) return POIZON;
+
+    printf("%d - ", value_from_stack);
+    printf("%zd\n", stk->size);
 
     return value_from_stack;
 }
@@ -106,7 +124,7 @@ StackErr_t StackDestroy(struct stack_t *stk)
     ASSERTS(stk);
 
     StackErr_t err = NO_ERROR;
-    if (err)
+    if ((err = StackVerify(stk)))
     {
         STACK_DUMP(stk);
         return err;

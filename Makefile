@@ -2,7 +2,7 @@ FLAGS = -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop
 
 CXX = g++
 
-SOURCES =  stack.cpp main.cpp
+SOURCES =  stack.cpp main.cpp calculator.cpp
 OBJECTS = $(patsubst %.cpp, %.o, $(SOURCES))
 
 all: stack.exe

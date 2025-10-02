@@ -1,3 +1,6 @@
+#ifndef STACK_H
+#define STACK_H
+
 #include <stdio.h>
 #include <stddef.h>
 
@@ -6,6 +9,7 @@
         StackDump(stk,__FILE__, __LINE__)
 #define INCREASE_IN 2
 #define CANARY 43685
+#define MAX_VALUE __INT_MAX__
 
 #define ASSERTS(stk) \
     assert(stk != NULL);\
@@ -20,14 +24,16 @@ enum StackErr_t {
     NO_ERROR = 0,
     ERROR_IN_SIZE,
     ERROR_IN_CAPACITY,
-    ERROR_IN_DATA, //ошибка в целостности данных для хэш функции
+    ERROR_IN_DATA,
+    ERROR_IN_DATA_INTEGRITY,
 };
 
 struct stack_t
 {
     used_type *data;
     ssize_t size;
-    ssize_t capacity; //переменная для хранения суммы чисел в стеке
+    ssize_t capacity; 
+    ssize_t sum_of_elements;
 };
 
 StackErr_t StackInit(struct stack_t *stk, ssize_t capacity);
@@ -36,3 +42,6 @@ used_type StackPop(struct stack_t *stk, StackErr_t *err);
 StackErr_t StackDestroy(struct stack_t *stk);
 StackErr_t StackVerify(const struct stack_t *stk);
 void StackDump(const struct stack_t *stk, const char *file, int line);
+StackErr_t HashFunction(const struct stack_t *stk, ssize_t sum_of_elements);
+
+#endif
