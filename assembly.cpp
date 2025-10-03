@@ -34,7 +34,7 @@ int main()
 
         fprintf(commands_for_record, "%d ", data_remember.num_of_command);
 
-        if (data_remember.num_of_command == 0)
+        if (data_remember.num_of_command == PUSH)
         {
             if (fscanf(commands_for_reading, "%d", &data_remember.argument) != 1)
             {
