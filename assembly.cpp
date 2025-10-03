@@ -44,6 +44,7 @@ int main()
             fprintf(commands_for_record, "%d", data_remember.argument);
         }
         fprintf(commands_for_record, "\n");
+        data_remember.num_of_strings++;
     }
 
     return 0;
