@@ -5,7 +5,7 @@
 
 int main()
 {
-    FILE *commands_for_reading = fopen("commands.asm", "r");
+    FILE *commands_for_reading = fopen("original_commands.asm", "r");
     FILE *commands_for_record = fopen("byte_code.txt", "w");
 
     struct commands_for_change data_remember = 
@@ -18,9 +18,7 @@ int main()
 
     while (!feof(commands_for_reading))
     {
-        fscanf(commands_for_reading, "%s", data_remember.command);
-
-        if (!data_remember.command[0])
+        if (fscanf(commands_for_reading, "%s", data_remember.command) != 1)
         {
             printf("\033[31min commands.asm: line %zd: The command is not set.\033[0m\n", data_remember.num_of_strings);
             return 1;

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+#define SIZE 10
 enum CommandsNums
 {
     PUSH,
@@ -18,7 +19,7 @@ enum CommandsNums
 
 struct commands_for_change
 {
-    char command[10];
+    char command[SIZE];
     CommandsNums num_of_command;
     int argument;
     size_t num_of_strings;

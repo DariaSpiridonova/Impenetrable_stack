@@ -6,7 +6,7 @@
 int main()
 {
     FILE *commands_for_reading = fopen("byte_code.txt", "r");
-    FILE *commands_for_record = fopen("disassembly.asm", "w");
+    FILE *commands_for_record = fopen("received_commands.asm", "w");
 
     struct commands_for_change data_remember = 
     {
